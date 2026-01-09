@@ -58,8 +58,14 @@ static ssize_t bootcount_store(struct device *dev,
 {
 	const struct bootcount_data *data = dev_get_drvdata(dev);
 	const __u32 magic = ioread32be(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET);
+	__u32 counter;
+
+	if (kstrtou32(buf, 10, &counter)) {
+		return -EINVAL;
+	}
+
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
-		writel(cpu_to_be32(simple_strtol(buf, NULL, 10)), data->mem);
+		iowrite32be(counter, data->mem);
 		return count;
 	} else {
 		dev_err(dev, "invalid magic number: expected 0x%08x, got 0x%08x\n",
