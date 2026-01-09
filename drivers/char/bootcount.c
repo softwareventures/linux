@@ -33,19 +33,6 @@
 
 void __iomem *mem;
 
-static int
-write_bootcounter(struct file *file, const char *buffer, unsigned long count,
-		   void *data)
-{
-	const __u32 magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
-	if (magic == UBOOT_BOOTCOUNT_MAGIC)
-		writel(cpu_to_be32(simple_strtol(buffer, NULL, 10)), mem);
-	else
-		return -EINVAL;
-
-	return count;
-}
-
 static ssize_t show_str_bootcount(struct device *device,
 				struct device_attribute *attr,
 				char *buf)
@@ -56,17 +43,25 @@ static ssize_t show_str_bootcount(struct device *device,
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
 		return sysfs_emit(buf, "%u\n", counter);
 	} else {
-		return sysfs_emit(buf, "bad magic: 0x%u != 0x%u\n", magic,
-				  UBOOT_BOOTCOUNT_MAGIC);
+		dev_err(device, "Invalid magic number: expected 0x%08x, got 0x%08x.",
+			UBOOT_BOOTCOUNT_MAGIC, magic);
+		return -ENODEV;
 	}
 }
 static ssize_t store_str_bootcount(struct device *dev,
 			struct device_attribute *attr,
 			const char *buf,
-			size_t count)
+			const size_t count)
 {
-	write_bootcounter(NULL, buf, count, NULL);
-	return count;
+	const __u32 magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
+	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
+		writel(cpu_to_be32(simple_strtol(buf, NULL, 10)), mem);
+		return count;
+	} else {
+		dev_err(dev, "Invalid magic number: expected 0x%08x, got 0x%08x.",
+			UBOOT_BOOTCOUNT_MAGIC, magic);
+		return -ENODEV;
+	}
 }
 static DEVICE_ATTR(bootcount, S_IWUSR | S_IRUGO, show_str_bootcount,
 		store_str_bootcount);
