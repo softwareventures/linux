@@ -43,7 +43,7 @@ static ssize_t bootcount_show(struct device *device,
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
 		return sysfs_emit(buf, "%u\n", counter);
 	} else {
-		dev_err(device, "Invalid magic number: expected 0x%08x, got 0x%08x.",
+		dev_err(device, "invalid magic number: expected 0x%08x, got 0x%08x\n",
 			UBOOT_BOOTCOUNT_MAGIC, magic);
 		return -ENODEV;
 	}
@@ -58,7 +58,7 @@ static ssize_t bootcount_store(struct device *dev,
 		writel(cpu_to_be32(simple_strtol(buf, NULL, 10)), mem);
 		return count;
 	} else {
-		dev_err(dev, "Invalid magic number: expected 0x%08x, got 0x%08x.",
+		dev_err(dev, "invalid magic number: expected 0x%08x, got 0x%08x\n",
 			UBOOT_BOOTCOUNT_MAGIC, magic);
 		return -ENODEV;
 	}
@@ -71,13 +71,12 @@ static int bootcount_probe(struct platform_device *ofdev)
 
 	mem = of_iomap(np, 0);
 	if (mem == NULL) {
-		dev_err(&ofdev->dev, "%s couldnt map register.\n", __func__);
+		dev_err(&ofdev->dev, "couldn't map register\n");
 		return -ENOMEM;
 	}
 
 	if (device_create_file(&ofdev->dev, &dev_attr_bootcount))
-		dev_warn(&ofdev->dev, "%s couldnt register sysFS entry.\n",
-			__func__);
+		dev_warn(&ofdev->dev, "couldn't register sysfs entry\n");
 
 	return 0;
 }
