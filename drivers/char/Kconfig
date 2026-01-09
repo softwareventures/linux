@@ -391,6 +391,13 @@ config UV_MMTIMER
 	  The uv_mmtimer device allows direct userspace access to the
 	  UV system timer.
 
+config BOOTCOUNT
+	tristate "U-Boot Bootcount driver"
+	depends on OF
+	help
+	  The U-Boot Bootcount driver allows to access the
+	  bootcounter through procFS or sysFS files.
+
 source "drivers/char/tpm/Kconfig"
 
 config TELCLOCK

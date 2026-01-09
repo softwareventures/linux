@@ -1,0 +1,13 @@
+Bootcount driver
+
+Required properties:
+
+  - compatible : should be "uboot,bootcount"
+  - reg: the address of the bootcounter
+
+Example:
+
+bootcount@1c23000 {
+	compatible = "uboot,bootcount";
+	reg = <0x23060 0x20>;
+};
