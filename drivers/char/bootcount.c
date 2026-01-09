@@ -70,8 +70,10 @@ static int bootcount_probe(struct platform_device *ofdev)
 	struct device_node *np = of_node_get(ofdev->dev.of_node);
 
 	mem = of_iomap(np, 0);
-	if (mem == NULL)
+	if (mem == NULL) {
 		dev_err(&ofdev->dev, "%s couldnt map register.\n", __func__);
+		return -ENOMEM;
+	}
 
 	if (device_create_file(&ofdev->dev, &dev_attr_bootcount))
 		dev_warn(&ofdev->dev, "%s couldnt register sysFS entry.\n",
