@@ -141,4 +141,4 @@ module_exit(uboot_bootcount_cleanup);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Daniel Cassidy <mail@danielcassidy.me.uk>");
-MODULE_DESCRIPTION("Provide (read/write) access to the u-boot bootcounter via sysfs");
+MODULE_DESCRIPTION("Provide read/write access to the u-boot bootcount via sysfs");
