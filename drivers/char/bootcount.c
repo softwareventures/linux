@@ -31,7 +31,7 @@
 #define	UBOOT_BOOTCOUNT_MAGIC_OFFSET	0x04	/* offset of magic number */
 #define	UBOOT_BOOTCOUNT_MAGIC		0xB001C041 /* magic number value */
 
-void __iomem *mem;
+static void __iomem *mem;
 
 static ssize_t bootcount_show(struct device *device,
 				struct device_attribute *attr,
