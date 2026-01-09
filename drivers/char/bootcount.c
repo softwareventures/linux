@@ -72,7 +72,7 @@ static ssize_t bootcount_store(struct device *dev,
 		return -ENODEV;
 	}
 }
-static DEVICE_ATTR(bootcount, S_IWUSR | S_IRUGO, bootcount_show, bootcount_store);
+static DEVICE_ATTR_RW(bootcount);
 
 static int bootcount_probe(struct platform_device *ofdev)
 {
