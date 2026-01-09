@@ -30,15 +30,15 @@
 #define	UBOOT_BOOTCOUNT_MAGIC_OFFSET	0x04	/* offset of magic number */
 #define	UBOOT_BOOTCOUNT_MAGIC		0xB001C041 /* magic number value */
 
-struct bootcount_data {
+struct uboot_bootcount_data {
 	void __iomem *mem;
 };
 
-static ssize_t bootcount_show(struct device *dev,
+static ssize_t uboot_bootcount_show(struct device *dev,
 				struct device_attribute *attr,
 				char *buf)
 {
-	const struct bootcount_data *data = dev_get_drvdata(dev);
+	const struct uboot_bootcount_data *data = dev_get_drvdata(dev);
 	const __u32 magic = ioread32be(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET);
 	const __u32 counter = ioread32be(data->mem);
 
@@ -50,12 +50,12 @@ static ssize_t bootcount_show(struct device *dev,
 		return -ENODEV;
 	}
 }
-static ssize_t bootcount_store(struct device *dev,
+static ssize_t uboot_bootcount_store(struct device *dev,
 			struct device_attribute *attr,
 			const char *buf,
 			const size_t count)
 {
-	const struct bootcount_data *data = dev_get_drvdata(dev);
+	const struct uboot_bootcount_data *data = dev_get_drvdata(dev);
 	const __u32 magic = ioread32be(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET);
 	__u32 counter;
 
@@ -71,11 +71,11 @@ static ssize_t bootcount_store(struct device *dev,
 		return -ENODEV;
 	}
 }
-static DEVICE_ATTR_RW(bootcount);
+static DEVICE_ATTR_RW(uboot_bootcount);
 
-static int bootcount_probe(struct platform_device *pdev)
+static int uboot_bootcount_probe(struct platform_device *pdev)
 {
-	struct bootcount_data *data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+	struct uboot_bootcount_data *data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
 
 	if (!data)
 		return -ENOMEM;
@@ -86,7 +86,7 @@ static int bootcount_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, data);
 
-	const int result = device_create_file(&pdev->dev, &dev_attr_bootcount);
+	const int result = device_create_file(&pdev->dev, &dev_attr_uboot_bootcount);
 	if (result) {
 		dev_err(&pdev->dev, "couldn't register sysfs entry\n");
 		return result;
@@ -95,37 +95,37 @@ static int bootcount_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static void bootcount_remove(struct platform_device *pdev)
+static void uboot_bootcount_remove(struct platform_device *pdev)
 {
-	device_remove_file(&pdev->dev, &dev_attr_bootcount);
+	device_remove_file(&pdev->dev, &dev_attr_uboot_bootcount);
 }
 
-static __initconst const struct of_device_id bootcount_match[] = {
+static __initconst const struct of_device_id uboot_bootcount_match[] = {
 	{
 		.compatible = "uboot,bootcount",
 	},
 	{},
 };
-MODULE_DEVICE_TABLE(of, bootcount_match);
+MODULE_DEVICE_TABLE(of, uboot_bootcount_match);
 
-static struct platform_driver bootcount_driver = {
+static struct platform_driver uboot_bootcount_driver = {
 	.driver = {
-		.name = "bootcount",
-		.of_match_table = of_match_ptr(bootcount_match),
+		.name = "uboot-bootcount",
+		.of_match_table = of_match_ptr(uboot_bootcount_match),
 		.owner = THIS_MODULE,
 	},
-	.probe = bootcount_probe,
-	.remove = bootcount_remove,
+	.probe = uboot_bootcount_probe,
+	.remove = uboot_bootcount_remove,
 };
 
 static int __init uboot_bootcount_init(void)
 {
-	return platform_driver_register(&bootcount_driver);
+	return platform_driver_register(&uboot_bootcount_driver);
 }
 
 static void __exit uboot_bootcount_cleanup(void)
 {
-	platform_driver_unregister(&bootcount_driver);
+	platform_driver_unregister(&uboot_bootcount_driver);
 }
 
 module_init(uboot_bootcount_init);

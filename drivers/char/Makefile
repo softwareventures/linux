@@ -31,7 +31,7 @@ obj-$(CONFIG_SCx200_GPIO)	+= scx200_gpio.o
 obj-$(CONFIG_PC8736x_GPIO)	+= pc8736x_gpio.o
 obj-$(CONFIG_NSC_GPIO)		+= nsc_gpio.o
 obj-$(CONFIG_TELCLOCK)		+= tlclk.o
-obj-$(CONFIG_BOOTCOUNT)		+= bootcount.o
+obj-$(CONFIG_UBOOT_BOOTCOUNT)		+= uboot_bootcount.o
 
 obj-$(CONFIG_MWAVE)		+= mwave/
 obj-y				+= agp/
