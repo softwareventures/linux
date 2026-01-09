@@ -52,18 +52,13 @@ static int
 read_bootcounter_info(char *buffer, int *len, off_t * begin, off_t offset,
 		       int size)
 {
-	unsigned long magic;
-	unsigned long counter;
-
-
-	magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
-	counter = be32_to_cpu(readl(mem));
+	const __u32 magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
+	const __u32 counter = be32_to_cpu(readl(mem));
 
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
-		PRINT_PROC("%lu\n", counter);
+		PRINT_PROC("%u\n", counter);
 	} else {
-		PRINT_PROC("bad magic: 0x%lu != 0x%lu\n", magic,
-			    (unsigned long)UBOOT_BOOTCOUNT_MAGIC);
+		PRINT_PROC("bad magic: 0x%u != 0x%u\n", magic, UBOOT_BOOTCOUNT_MAGIC);
 	}
 
 	return 1;
@@ -73,9 +68,7 @@ static int
 write_bootcounter(struct file *file, const char *buffer, unsigned long count,
 		   void *data)
 {
-	unsigned long magic;
-
-	magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
+	const __u32 magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
 	if (magic == UBOOT_BOOTCOUNT_MAGIC)
 		writel(cpu_to_be32(simple_strtol(buffer, NULL, 10)), mem);
 	else
