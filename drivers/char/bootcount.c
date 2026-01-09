@@ -34,18 +34,18 @@ struct bootcount_data {
 	void __iomem *mem;
 };
 
-static ssize_t bootcount_show(struct device *device,
+static ssize_t bootcount_show(struct device *dev,
 				struct device_attribute *attr,
 				char *buf)
 {
-	const struct bootcount_data *data = dev_get_drvdata(device);
+	const struct bootcount_data *data = dev_get_drvdata(dev);
 	const __u32 magic = ioread32be(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET);
 	const __u32 counter = ioread32be(data->mem);
 
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
 		return sysfs_emit(buf, "%u\n", counter);
 	} else {
-		dev_err(device, "invalid magic number: expected 0x%08x, got 0x%08x\n",
+		dev_err(dev, "invalid magic number: expected 0x%08x, got 0x%08x\n",
 			UBOOT_BOOTCOUNT_MAGIC, magic);
 		return -ENODEV;
 	}
@@ -141,4 +141,4 @@ module_exit(uboot_bootcount_cleanup);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Daniel Cassidy <mail@danielcassidy.me.uk>");
-MODULE_DESCRIPTION("Provide (read/write) access to the U-Boot bootcounter via sysfs");
+MODULE_DESCRIPTION("Provide (read/write) access to the u-boot bootcounter via sysfs");
