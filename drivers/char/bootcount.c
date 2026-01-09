@@ -31,38 +31,7 @@
 #define	UBOOT_BOOTCOUNT_MAGIC_OFFSET	0x04	/* offset of magic number */
 #define	UBOOT_BOOTCOUNT_MAGIC		0xB001C041 /* magic number value */
 
-/*
- * This macro frees the machine specific function from bounds checking and
- * this like that...
- */
-#define PRINT_PROC(fmt, args...) \
-	do { \
-		*len += sprintf(buffer + *len, fmt, ##args); \
-		if (*begin + *len > offset + size) \
-			return 0; \
-		if (*begin + *len < offset) { \
-			*begin += *len; \
-			*len = 0; \
-		} \
-	} while (0)
-
 void __iomem *mem;
-
-static int
-read_bootcounter_info(char *buffer, int *len, off_t * begin, off_t offset,
-		       int size)
-{
-	const __u32 magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
-	const __u32 counter = be32_to_cpu(readl(mem));
-
-	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
-		PRINT_PROC("%u\n", counter);
-	} else {
-		PRINT_PROC("bad magic: 0x%u != 0x%u\n", magic, UBOOT_BOOTCOUNT_MAGIC);
-	}
-
-	return 1;
-}
 
 static int
 write_bootcounter(struct file *file, const char *buffer, unsigned long count,
@@ -81,11 +50,15 @@ static ssize_t show_str_bootcount(struct device *device,
 				struct device_attribute *attr,
 				char *buf)
 {
-	int ret = 0;
-	off_t begin = 0;
+	const __u32 magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
+	const __u32 counter = be32_to_cpu(readl(mem));
 
-	read_bootcounter_info(buf, &ret, &begin, 0, 20);
-	return ret;
+	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
+		return sysfs_emit(buf, "%u\n", counter);
+	} else {
+		return sysfs_emit(buf, "bad magic: 0x%u != 0x%u\n", magic,
+				  UBOOT_BOOTCOUNT_MAGIC);
+	}
 }
 static ssize_t store_str_bootcount(struct device *dev,
 			struct device_attribute *attr,
