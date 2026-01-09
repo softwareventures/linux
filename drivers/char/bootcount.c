@@ -74,31 +74,31 @@ static ssize_t bootcount_store(struct device *dev,
 }
 static DEVICE_ATTR_RW(bootcount);
 
-static int bootcount_probe(struct platform_device *ofdev)
+static int bootcount_probe(struct platform_device *pdev)
 {
-	struct bootcount_data *data = devm_kzalloc(&ofdev->dev, sizeof(*data), GFP_KERNEL);
+	struct bootcount_data *data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
 
 	if (!data)
 		return -ENOMEM;
 
-	data->mem = devm_platform_ioremap_resource(ofdev, 0);
+	data->mem = devm_platform_ioremap_resource(pdev, 0);
 	if (IS_ERR(data->mem))
 		return PTR_ERR(data->mem);
 
-	platform_set_drvdata(ofdev, data);
+	platform_set_drvdata(pdev, data);
 
-	const int result = device_create_file(&ofdev->dev, &dev_attr_bootcount);
+	const int result = device_create_file(&pdev->dev, &dev_attr_bootcount);
 	if (result) {
-		dev_err(&ofdev->dev, "couldn't register sysfs entry\n");
+		dev_err(&pdev->dev, "couldn't register sysfs entry\n");
 		return result;
 	}
 
 	return 0;
 }
 
-static void bootcount_remove(struct platform_device *ofdev)
+static void bootcount_remove(struct platform_device *pdev)
 {
-	device_remove_file(&ofdev->dev, &dev_attr_bootcount);
+	device_remove_file(&pdev->dev, &dev_attr_bootcount);
 }
 
 static __initconst const struct of_device_id bootcount_match[] = {
