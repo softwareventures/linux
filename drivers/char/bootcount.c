@@ -40,8 +40,8 @@ static ssize_t bootcount_show(struct device *device,
 				char *buf)
 {
 	const struct bootcount_data *data = dev_get_drvdata(device);
-	const __u32 magic = be32_to_cpu(readl(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
-	const __u32 counter = be32_to_cpu(readl(data->mem));
+	const __u32 magic = ioread32be(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET);
+	const __u32 counter = ioread32be(data->mem);
 
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
 		return sysfs_emit(buf, "%u\n", counter);
@@ -57,7 +57,7 @@ static ssize_t bootcount_store(struct device *dev,
 			const size_t count)
 {
 	const struct bootcount_data *data = dev_get_drvdata(dev);
-	const __u32 magic = be32_to_cpu(readl(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
+	const __u32 magic = ioread32be(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET);
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
 		writel(cpu_to_be32(simple_strtol(buf, NULL, 10)), data->mem);
 		return count;
