@@ -91,7 +91,7 @@ write_bootcounter(struct file *file, const char *buffer, unsigned long count,
 }
 
 /* helper for the sysFS */
-static int show_str_bootcount(struct device *device,
+static ssize_t show_str_bootcount(struct device *device,
 				struct device_attribute *attr,
 				char *buf)
 {
@@ -101,7 +101,7 @@ static int show_str_bootcount(struct device *device,
 	read_bootcounter_info(buf, &ret, &begin, 0, 20);
 	return ret;
 }
-static int store_str_bootcount(struct device *dev,
+static ssize_t store_str_bootcount(struct device *dev,
 			struct device_attribute *attr,
 			const char *buf,
 			size_t count)
@@ -112,7 +112,7 @@ static int store_str_bootcount(struct device *dev,
 static DEVICE_ATTR(bootcount, S_IWUSR | S_IRUGO, show_str_bootcount,
 		store_str_bootcount);
 
-static int __devinit bootcount_probe(struct platform_device *ofdev)
+static int bootcount_probe(struct platform_device *ofdev)
 {
 	struct device_node *np = of_node_get(ofdev->dev.of_node);
 
@@ -127,13 +127,12 @@ static int __devinit bootcount_probe(struct platform_device *ofdev)
 	return 0;
 }
 
-static int __devexit bootcount_remove(struct platform_device *ofdev)
+static void bootcount_remove(struct platform_device *ofdev)
 {
 	BUG();
-	return 0;
 }
 
-static const struct of_device_id __devinitconst bootcount_match[] = {
+static __initconst const struct of_device_id bootcount_match[] = {
 	{
 		.compatible = "uboot,bootcount",
 	},
@@ -144,7 +143,7 @@ MODULE_DEVICE_TABLE(of, bootcount_match);
 static struct platform_driver bootcount_driver = {
 	.driver = {
 		.name = "bootcount",
-		.of_match_table = bootcount_match,
+		.of_match_table = of_match_ptr(bootcount_match),
 		.owner = THIS_MODULE,
 	},
 	.probe = bootcount_probe,
