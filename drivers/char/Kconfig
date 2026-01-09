@@ -395,8 +395,9 @@ config UBOOT_BOOTCOUNT
 	tristate "U-Boot Bootcount driver"
 	depends on OF
 	help
-	  The U-Boot Bootcount driver allows to access the
-	  bootcounter through a sysFS file.
+	  Exposes the generic memory-resident U-Boot boot counter to
+	  userspace through a sysfs interface. This allows applications
+	  to read or write the boot count from a running system.
 
 source "drivers/char/tpm/Kconfig"
 
