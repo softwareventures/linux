@@ -75,8 +75,13 @@ static int bootcount_probe(struct platform_device *ofdev)
 		return -ENOMEM;
 	}
 
-	if (device_create_file(&ofdev->dev, &dev_attr_bootcount))
-		dev_warn(&ofdev->dev, "couldn't register sysfs entry\n");
+	const int result = device_create_file(&ofdev->dev, &dev_attr_bootcount);
+	if (result) {
+		dev_err(&ofdev->dev, "couldn't register sysfs entry\n");
+		iounmap(mem);
+		mem = NULL;
+		return result;
+	}
 
 	return 0;
 }
