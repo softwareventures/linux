@@ -59,9 +59,8 @@ static ssize_t bootcount_store(struct device *dev,
 	const __u32 magic = ioread32be(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET);
 	__u32 counter;
 
-	if (kstrtou32(buf, 10, &counter)) {
+	if (kstrtou32(buf, 10, &counter))
 		return -EINVAL;
-	}
 
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
 		iowrite32be(counter, data->mem);
