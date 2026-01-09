@@ -100,7 +100,7 @@ static void uboot_bootcount_remove(struct platform_device *pdev)
 	device_remove_file(&pdev->dev, &dev_attr_uboot_bootcount);
 }
 
-static __initconst const struct of_device_id uboot_bootcount_match[] = {
+static const struct of_device_id uboot_bootcount_match[] = {
 	{
 		.compatible = "uboot,bootcount",
 	},
