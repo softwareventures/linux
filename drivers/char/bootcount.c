@@ -2,9 +2,11 @@
  * This driver gives access(read/write) to the bootcounter used by u-boot.
  * Access is supported via procFS and sysFS.
  *
+ * Copyright 2025 Software Ventures Limited
  * Copyright 2008 DENX Software Engineering GmbH
+ * Author: Daniel Cassidy <mail@danielcassidy.me.uk>
  * Author: Heiko Schocher <hs@denx.de>
- * Based on work from: Steffen Rumler  (Steffen.Rumler@siemens.com)
+ * Based on work from: Steffen Rumler <Steffen.Rumler@siemens.com>
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -206,5 +208,5 @@ module_init(uboot_bootcount_init);
 module_exit(uboot_bootcount_cleanup);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Steffen Rumler <steffen.rumler@siemens.com>");
+MODULE_AUTHOR("Daniel Cassidy <mail@danielcassidy.me.uk>");
 MODULE_DESCRIPTION("Provide (read/write) access to the U-Boot bootcounter via PROC FS");
