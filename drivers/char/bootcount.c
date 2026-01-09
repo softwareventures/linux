@@ -48,6 +48,7 @@
 	} while (0)
 
 void __iomem *mem;
+
 static int
 read_bootcounter_info(char *buffer, int *len, off_t * begin, off_t offset,
 		       int size)
@@ -142,7 +143,6 @@ static struct platform_driver bootcount_driver = {
 	.probe = bootcount_probe,
 	.remove = bootcount_remove,
 };
-
 
 static int __init uboot_bootcount_init(void)
 {
