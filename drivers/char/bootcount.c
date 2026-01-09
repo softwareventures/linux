@@ -66,7 +66,7 @@ static ssize_t bootcount_store(struct device *dev,
 
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
 		iowrite32be(counter, data->mem);
-		return count;
+		return (ssize_t)count;
 	} else {
 		dev_err(dev, "invalid magic number: expected 0x%08x, got 0x%08x\n",
 			UBOOT_BOOTCOUNT_MAGIC, magic);
