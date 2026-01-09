@@ -27,7 +27,6 @@
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>
 #include <linux/ptrace.h>
-#include <linux/uaccess.h>
 
 #define	UBOOT_BOOTCOUNT_MAGIC_OFFSET	0x04	/* offset of magic number */
 #define	UBOOT_BOOTCOUNT_MAGIC		0xB001C041 /* magic number value */
