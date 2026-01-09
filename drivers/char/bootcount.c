@@ -1,6 +1,6 @@
 /*
  * This driver gives access(read/write) to the bootcounter used by u-boot.
- * Access is supported via procFS and sysFS.
+ * Access is supported via sysfs.
  *
  * Copyright 2025 Software Ventures Limited
  * Copyright 2008 DENX Software Engineering GmbH
@@ -28,15 +28,8 @@
 #include <linux/ptrace.h>
 #include <linux/uaccess.h>
 
-#ifndef CONFIG_PROC_FS
-#error "PROC FS support must be switched-on"
-#endif
-#include <linux/proc_fs.h>
-
 #define	UBOOT_BOOTCOUNT_MAGIC_OFFSET	0x04	/* offset of magic number */
 #define	UBOOT_BOOTCOUNT_MAGIC		0xB001C041 /* magic number value */
-
-#define	UBOOT_BOOTCOUNT_PROC_ENTRY	"driver/bootcount"
 
 /*
  * This macro frees the machine specific function from bounds checking and
@@ -76,26 +69,6 @@ read_bootcounter_info(char *buffer, int *len, off_t * begin, off_t offset,
 	}
 
 	return 1;
-}
-
-/*
- * read U-Boot bootcounter (wrapper)
- */
-static int
-read_bootcounter(char *buffer, char **start, off_t offset, int size,
-		  int *eof, void *arg)
-{
-	int len = 0;
-	off_t begin = 0;
-
-
-	*eof = read_bootcounter_info(buffer, &len, &begin, offset, size);
-
-	if (offset >= begin + len)
-		return 0;
-
-	*start = buffer + (offset - begin);
-	return size < begin + len - offset ? size : begin + len - offset;
 }
 
 /*
@@ -141,24 +114,10 @@ static DEVICE_ATTR(bootcount, S_IWUSR | S_IRUGO, show_str_bootcount,
 static int __devinit bootcount_probe(struct platform_device *ofdev)
 {
 	struct device_node *np = of_node_get(ofdev->dev.of_node);
-	struct proc_dir_entry *bootcount;
 
 	mem = of_iomap(np, 0);
 	if (mem == NULL)
 		dev_err(&ofdev->dev, "%s couldnt map register.\n", __func__);
-
-	/* init ProcFS */
-	bootcount = create_proc_entry(UBOOT_BOOTCOUNT_PROC_ENTRY, 0600, NULL);
-	if (bootcount == NULL) {
-		dev_err(&ofdev->dev, "\n%s (%d): cannot create /proc/%s\n",
-			__FILE__, __LINE__, UBOOT_BOOTCOUNT_PROC_ENTRY);
-	} else {
-
-		bootcount->read_proc = read_bootcounter;
-		bootcount->write_proc = write_bootcounter;
-		dev_info(&ofdev->dev, "created \"/proc/%s\"\n",
-			UBOOT_BOOTCOUNT_PROC_ENTRY);
-	}
 
 	if (device_create_file(&ofdev->dev, &dev_attr_bootcount))
 		dev_warn(&ofdev->dev, "%s couldnt register sysFS entry.\n",
@@ -201,7 +160,6 @@ static void __exit uboot_bootcount_cleanup(void)
 {
 	if (mem != NULL)
 		iounmap(mem);
-	remove_proc_entry(UBOOT_BOOTCOUNT_PROC_ENTRY, NULL);
 }
 
 module_init(uboot_bootcount_init);
@@ -209,4 +167,4 @@ module_exit(uboot_bootcount_cleanup);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Daniel Cassidy <mail@danielcassidy.me.uk>");
-MODULE_DESCRIPTION("Provide (read/write) access to the U-Boot bootcounter via PROC FS");
+MODULE_DESCRIPTION("Provide (read/write) access to the U-Boot bootcounter via sysfs");

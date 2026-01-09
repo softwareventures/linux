@@ -396,7 +396,7 @@ config BOOTCOUNT
 	depends on OF
 	help
 	  The U-Boot Bootcount driver allows to access the
-	  bootcounter through procFS or sysFS files.
+	  bootcounter through a sysFS file.
 
 source "drivers/char/tpm/Kconfig"
 
