@@ -88,7 +88,12 @@ static int bootcount_probe(struct platform_device *ofdev)
 
 static void bootcount_remove(struct platform_device *ofdev)
 {
-	BUG();
+	device_remove_file(&ofdev->dev, &dev_attr_bootcount);
+
+	if (mem != NULL) {
+		iounmap(mem);
+		mem = NULL;
+	}
 }
 
 static __initconst const struct of_device_id bootcount_match[] = {
@@ -116,8 +121,7 @@ static int __init uboot_bootcount_init(void)
 
 static void __exit uboot_bootcount_cleanup(void)
 {
-	if (mem != NULL)
-		iounmap(mem);
+	platform_driver_unregister(&bootcount_driver);
 }
 
 module_init(uboot_bootcount_init);
