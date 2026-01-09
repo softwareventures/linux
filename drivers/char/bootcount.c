@@ -48,9 +48,6 @@
 	} while (0)
 
 void __iomem *mem;
-/*
- * read U-Boot bootcounter
- */
 static int
 read_bootcounter_info(char *buffer, int *len, off_t * begin, off_t offset,
 		       int size)
@@ -72,9 +69,6 @@ read_bootcounter_info(char *buffer, int *len, off_t * begin, off_t offset,
 	return 1;
 }
 
-/*
- * write new value to U-Boot bootcounter
- */
 static int
 write_bootcounter(struct file *file, const char *buffer, unsigned long count,
 		   void *data)
@@ -90,7 +84,6 @@ write_bootcounter(struct file *file, const char *buffer, unsigned long count,
 	return count;
 }
 
-/* helper for the sysFS */
 static ssize_t show_str_bootcount(struct device *device,
 				struct device_attribute *attr,
 				char *buf)
