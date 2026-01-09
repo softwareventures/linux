@@ -33,7 +33,7 @@
 
 void __iomem *mem;
 
-static ssize_t show_str_bootcount(struct device *device,
+static ssize_t bootcount_show(struct device *device,
 				struct device_attribute *attr,
 				char *buf)
 {
@@ -48,7 +48,7 @@ static ssize_t show_str_bootcount(struct device *device,
 		return -ENODEV;
 	}
 }
-static ssize_t store_str_bootcount(struct device *dev,
+static ssize_t bootcount_store(struct device *dev,
 			struct device_attribute *attr,
 			const char *buf,
 			const size_t count)
@@ -63,8 +63,7 @@ static ssize_t store_str_bootcount(struct device *dev,
 		return -ENODEV;
 	}
 }
-static DEVICE_ATTR(bootcount, S_IWUSR | S_IRUGO, show_str_bootcount,
-		store_str_bootcount);
+static DEVICE_ATTR(bootcount, S_IWUSR | S_IRUGO, bootcount_show, bootcount_store);
 
 static int bootcount_probe(struct platform_device *ofdev)
 {
