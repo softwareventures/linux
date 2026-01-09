@@ -31,14 +31,17 @@
 #define	UBOOT_BOOTCOUNT_MAGIC_OFFSET	0x04	/* offset of magic number */
 #define	UBOOT_BOOTCOUNT_MAGIC		0xB001C041 /* magic number value */
 
-static void __iomem *mem;
+struct bootcount_data {
+	void __iomem *mem;
+};
 
 static ssize_t bootcount_show(struct device *device,
 				struct device_attribute *attr,
 				char *buf)
 {
-	const __u32 magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
-	const __u32 counter = be32_to_cpu(readl(mem));
+	const struct bootcount_data *data = dev_get_drvdata(device);
+	const __u32 magic = be32_to_cpu(readl(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
+	const __u32 counter = be32_to_cpu(readl(data->mem));
 
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
 		return sysfs_emit(buf, "%u\n", counter);
@@ -53,9 +56,10 @@ static ssize_t bootcount_store(struct device *dev,
 			const char *buf,
 			const size_t count)
 {
-	const __u32 magic = be32_to_cpu(readl(mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
+	const struct bootcount_data *data = dev_get_drvdata(dev);
+	const __u32 magic = be32_to_cpu(readl(data->mem + UBOOT_BOOTCOUNT_MAGIC_OFFSET));
 	if (magic == UBOOT_BOOTCOUNT_MAGIC) {
-		writel(cpu_to_be32(simple_strtol(buf, NULL, 10)), mem);
+		writel(cpu_to_be32(simple_strtol(buf, NULL, 10)), data->mem);
 		return count;
 	} else {
 		dev_err(dev, "invalid magic number: expected 0x%08x, got 0x%08x\n",
@@ -68,18 +72,23 @@ static DEVICE_ATTR(bootcount, S_IWUSR | S_IRUGO, bootcount_show, bootcount_store
 static int bootcount_probe(struct platform_device *ofdev)
 {
 	struct device_node *np = of_node_get(ofdev->dev.of_node);
+	struct bootcount_data *data = devm_kzalloc(&ofdev->dev, sizeof(*data), GFP_KERNEL);
 
-	mem = of_iomap(np, 0);
-	if (mem == NULL) {
+	if (!data)
+		return -ENOMEM;
+
+	data->mem = of_iomap(np, 0);
+	if (data->mem == NULL) {
 		dev_err(&ofdev->dev, "couldn't map register\n");
 		return -ENOMEM;
 	}
 
+	platform_set_drvdata(ofdev, data);
+
 	const int result = device_create_file(&ofdev->dev, &dev_attr_bootcount);
 	if (result) {
 		dev_err(&ofdev->dev, "couldn't register sysfs entry\n");
-		iounmap(mem);
-		mem = NULL;
+		iounmap(data->mem);
 		return result;
 	}
 
@@ -88,12 +97,10 @@ static int bootcount_probe(struct platform_device *ofdev)
 
 static void bootcount_remove(struct platform_device *ofdev)
 {
-	device_remove_file(&ofdev->dev, &dev_attr_bootcount);
+	const struct bootcount_data *data = platform_get_drvdata(ofdev);
 
-	if (mem != NULL) {
-		iounmap(mem);
-		mem = NULL;
-	}
+	device_remove_file(&ofdev->dev, &dev_attr_bootcount);
+	iounmap(data->mem);
 }
 
 static __initconst const struct of_device_id bootcount_match[] = {
